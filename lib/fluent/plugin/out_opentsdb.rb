@@ -16,17 +16,15 @@ class OpenTsdbOutput < Output
 
   def start
     super
-    connect
+    # try a connection so can fail the process on incorrect host and port config
+    @socket = TCPSocket.new(@host, @port)
+    $log.info "connected to opentsdb at #{@host}:#{@port}"
+    @socket.close
   end
   
-  def connect
-    @socket = TCPSocket.new(@host, @port)    
-    $log.info "connected to opentsdb at #{@host}:#{@port}"
-  end 
-
   def shutdown
     super
-    @socket.shutdown(Socket::SHUT_RDWR)
+    @socket.shutdown(Socket::SHUT_RDWR) unless @socket.nil?
   end
 
   def emit(tag, es, chain)
@@ -64,12 +62,13 @@ class OpenTsdbOutput < Output
     message = ['put', name, time, value, tags].join(' ')
     #$log.debug message
     begin
+      @socket = TCPSocket.new(@host, @port)
+      $log.info "connected to opentsdb at #{@host}:#{@port}"
       @socket.puts(message)
-    rescue Errno::EPIPE, Errno::ECONNRESET => e
-      $log.warn("Connection to opentsdb server died",
-                   :exception => e, :host => @host, :port => @port)
-      sleep(2)
-      connect
+      @socket.close
+    rescue SocketError => e
+      $log.warn("Error connecting to opentsdb server",
+                 :exception => e, :host => @host, :port => @port)
     end
   end   
 end
