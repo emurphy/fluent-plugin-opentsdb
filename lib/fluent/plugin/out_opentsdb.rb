@@ -63,7 +63,7 @@ class OpenTsdbOutput < Output
     #$log.debug message
     begin
       @socket = TCPSocket.new(@host, @port)
-      $log.info "connected to opentsdb at #{@host}:#{@port}"
+      $log.debug "connected to opentsdb at #{@host}:#{@port}"
       @socket.puts(message)
       @socket.close
     rescue SocketError => e
