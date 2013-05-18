@@ -21,7 +21,7 @@ class OpenTsdbOutput < Output
     $log.info "connected to opentsdb at #{@host}:#{@port}"
     @socket.close
   end
-  
+
   def shutdown
     super
     @socket.shutdown(Socket::SHUT_RDWR) unless @socket.nil?
@@ -37,21 +37,21 @@ class OpenTsdbOutput < Output
           name = [@metric_prefix, @metric_num].join('.')
           put_metric(name, value, time, metric[0..-5])
         elsif metric[-14..-3] == '_percentile_'
-          name = [@metric_prefix, @metric_durations, 'pct' + metric[-2,2]].join('.')        
+          name = [@metric_prefix, @metric_durations, 'pct' + metric[-2,2]].join('.')
           put_metric(name, value, time, metric[0..-15])
         else
           name = [@metric_prefix, @metric_durations, metric[-3, 3]].join('.')
           put_metric(name, value, time, metric[0..-5])
         end
-      end      
+      end
     end
 
     chain.next
   end
-  
+
   def put_metric(name, value, time, monitor_key_name)
     tags = [@monitor_key_tag, monitor_key_name].join('=')
-    unless @tags.nil? 
+    unless @tags.nil?
       i = 0;
       @tags.gsub(/ /, '').split(',').each do |val|
         tags << (i == 0 ? ' ' : '')
@@ -66,10 +66,13 @@ class OpenTsdbOutput < Output
       $log.debug "connected to opentsdb at #{@host}:#{@port}"
       @socket.puts(message)
       @socket.close
+    rescue Errno::ECONNREFUSED => e
+      $log.warn("Connection refused to opentsdb server",
+                 :exception => e, :host => @host, :port => @port)
     rescue SocketError => e
       $log.warn("Error connecting to opentsdb server",
                  :exception => e, :host => @host, :port => @port)
     end
-  end   
+  end
 end
 end
