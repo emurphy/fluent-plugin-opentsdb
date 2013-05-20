@@ -39,11 +39,23 @@ describe "fluentd opentsdb plugin" do
   describe "#put_metric" do
 
     subject { plugin.put_metric metric_name, metric_value, timestamp, monitor_key_name }
+    after { plugin.instance_variable_set("@tags",nil) }
 
     it "creates proper TSD put string" do
       s = double('socket')
       TCPSocket.should_receive(:new).and_return(s)
       s.should_receive(:puts).with "put #{metric_name} #{timestamp} #{metric_value} #{monitor_key_tag}=#{monitor_key_name}"
+      s.should_receive :close
+      subject
+    end
+
+    it "massages tag values into TSD-compatible format" do
+      plugin.instance_variable_set("@tags", " tag_name1, tag_val1, tag_name2, tag_val2")
+      s = double('socket')
+      TCPSocket.should_receive(:new).and_return(s)
+      s.should_receive(:puts).with "put #{metric_name} #{timestamp} #{metric_value} " +
+        "#{monitor_key_tag}=#{monitor_key_name} " +
+        "tag_name1=tag_val1 tag_name2=tag_val2"
       s.should_receive :close
       subject
     end

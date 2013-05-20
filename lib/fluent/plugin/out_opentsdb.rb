@@ -50,16 +50,14 @@ class OpenTsdbOutput < Output
   end
 
   def put_metric(name, value, time, monitor_key_name)
-    tags = [@monitor_key_tag, monitor_key_name].join('=')
+    tag_kvs = [[@monitor_key_tag, monitor_key_name].join('=')] # kvs as in KeyValue, plural
     unless @tags.nil?
-      i = 0;
-      @tags.gsub(/ /, '').split(',').each do |val|
-        tags << (i == 0 ? ' ' : '')
-        tags << (i % 2 == 0 ? "#{val}=" : "#{val} ")
-        i += 1
+      kvs = @tags.gsub(/ /, '').split(',')
+      until kvs.empty?
+        tag_kvs << [kvs.shift, kvs.shift].join("=")
       end
     end
-    message = ['put', name, time, value, tags].join(' ')
+    message = ['put', name, time, value, *tag_kvs].join(' ')
     #$log.debug message
     begin
       @socket = TCPSocket.new(@host, @port)
