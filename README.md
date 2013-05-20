@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bnugmanov/fluent-plugin-opentsdb.png)](https://travis-ci.org/bnugmanov/fluent-plugin-opentsdb)
+
 # fluent-plugin-opentsdb
 
 ## Component
@@ -33,7 +35,7 @@ To graph in OpenTSDB:
 		metric_durations latency
 		monitor_key_tag	action
 		tags	env, localhost
-	</match>	
+	</match>
 
 Will send OpenTSDB put commands like the following:
 
@@ -43,7 +45,7 @@ Will send OpenTSDB put commands like the following:
 
 ## TODO
 
-* add tests
+* more tests
 * more documents
 
 ## License
