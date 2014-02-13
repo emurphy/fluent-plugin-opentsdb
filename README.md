@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/bnugmanov/fluent-plugin-opentsdb.png)](https://travis-ci.org/bnugmanov/fluent-plugin-opentsdb)
 
-# fluent-plugin-opentsdb
+# fluent-plugin-opentsdb, a plugin for [Fluentd](http://fluentd.org)
 
 ## Component
 
